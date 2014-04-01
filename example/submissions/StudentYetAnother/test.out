@@ -1,0 +1,15 @@
+COMPILATION
+VerificationTester.java:9: error: cannot find symbol
+		SolutionChecker checker = new SolutionChecker();		
+		^
+  symbol:   class SolutionChecker
+  location: class VerificationTester
+VerificationTester.java:9: error: cannot find symbol
+		SolutionChecker checker = new SolutionChecker();		
+		                              ^
+  symbol:   class SolutionChecker
+  location: class VerificationTester
+2 errors
+
+TESTING
+Error: Could not find or load main class VerificationTester

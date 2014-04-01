@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# $1 is expected to be an absolute path to the original submission directory of
+# this student. Save output there!
+
+# Kill the testing after 30 seconds to stop programs with severe problems.
+timelimit="30s"
+
+# The file to save output to
+testout="$1/test.out"
+
+echo "COMPILATION" > "$testout"
+javac *.java &>> "$testout"
+
+echo -e "\nTESTING" >> "$testout"
+timeout $timelimit java VerificationTester &>> "$testout"
+
+# timeout exits with a status of 124 if execution timed out
+if [ "$?" == "124" ]; then
+	echo -e "\n\n>>> Testing did not complete in $timelimit!" >> "$testout"
+fi
+
