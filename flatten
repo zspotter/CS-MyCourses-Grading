@@ -1,0 +1,16 @@
+#!/bin/bash
+
+for folder in "$@"
+do
+	if [ ! -d "$folder" ]; then
+		echo "Can't flatten non-directory $folder"
+		continue
+	fi
+
+	# Move files from sub-dirs to top level
+	find $folder -mindepth 2 -type f -exec mv -vt $folder -i '{}' +
+	
+	# Remove all sub dirs
+	find $folder -mindepth 1 -type d -exec rm -vrf '{}' +
+done
+

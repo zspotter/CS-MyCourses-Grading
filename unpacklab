@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# Usage: ./unpacklab <mycourses-download.zip>
+#
+# Creates an organized submission directory from a myCourses zip.
+# Creates a tree something like:
+#
+# submissions/
+# |-- PotterZachary/
+# |   |-- MySource.java
+# |   |-- AnotherFile.txt
+# |-- ...
+#
+# If a student submitted multiple files, only the latest submission will be 
+# kept.
+#
+# If a student submits a single zip file, it will automatically be unzipped
+# into the student submission directory. Folders inside the zip are preserved.
+#
+# Author: Zachary Potter
+#
+
+if [ -d "submissions" ]; then
+	echo "Remove submissions/ directory before continuing."
+	exit
+fi
+
+# Unzip lab into submissions/ dir
+unzip -d submissions "$1"
+
+if [ ! -d "submissions" ]; then
+	# Unzip failed to create submission directory
+	exit
+fi
+
+cd submissions
+rm index.html
+
+# Strip myCourses filename crap
+# Loop over all submitted files, sorted by modification time
+ls -t | while read submission
+do
+	f="${submission#*-*-\ }"
+	f="${f/,\ /}"
+	d="${f/\ -*.*/}"
+	f="${f#*\ -\ }"
+	
+	# If student submission dir already exists, then their latest
+	# submission is already in there. Skip this one.
+	if [ -d "$d" ]; then
+		echo "Skipping older submission: $submission"
+		rm "$submission"
+		continue
+	fi
+
+	# Make student submission dir
+	mkdir $d
+	mv "$submission" $d/"$f"
+
+	# Unzip if $f is a zip
+	if [[ "$f" == *.zip ]]; then
+		unzip -d $d $d/"$f"
+		rm $d/"$f"
+	fi
+	
+done
+

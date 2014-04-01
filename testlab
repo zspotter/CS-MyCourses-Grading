@@ -1,0 +1,57 @@
+#!/bin/bash
+
+#
+# A simple program to automate testing of CS labs.
+#
+# Usage: ./testlab SOURCE-DIR STUDENT-DIR...
+#
+# SOURCE-DIR is a directory containing files required for testing, and a special
+# 'testsubmission' executable. See bellow for more on that.
+# STUDENT-DIR can be 1 or more student submission directories.
+#
+# To grade all student submissions, you could run:
+# ./testlab source/ submissions/*
+#
+# To grade a single student:
+# ./testlab source/ submissions/PotterZachary/
+#
+# How this script works:
+# For each STUDENT-DIR:
+# Copies contents of STUDENT-DIR to a temporary testing folder
+# Copies all files from SOURCE-DIR into the testing folder
+# Inside testing folder, executes 'testsubmission' program
+#
+# The SOURCE-DIR must contain a 'testsubmission' executable. This program is
+# expected to compile and run tests for a single submission. A single command
+# line argument, the full path to the STUDENT-DIR, is passed to the program.
+# Testing output usefull for grading should be saved in the STUDENT-DIR folder.
+#
+# Author: Zachary Potter
+#
+
+testsubmission="testsubmission"
+
+# Provided test and source files
+provided="${1%/}"
+
+# Get a unique temporary working dir name (but dont create dir)
+tmpdir="$(mktemp -du --tmpdir=.)"
+
+for submission in ${@:2}
+do
+	echo "Testing $submission"
+	# Copy in student files
+	cp -r "$submission" "$tmpdir"
+	# Copy in provided and test files
+	cp -r "$provided"/* "$tmpdir"
+
+	# Enter working directory and execute test program
+	cd "$tmpdir"
+	eval "./$testsubmission $(pwd)/../$submission"
+	cd ..
+
+	# Clean up test dir
+	rm -rf "$tmpdir"
+done
+
+
